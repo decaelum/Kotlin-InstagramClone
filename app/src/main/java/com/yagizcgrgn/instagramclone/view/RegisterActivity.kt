@@ -3,8 +3,12 @@ package com.yagizcgrgn.instagramclone.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.yagizcgrgn.instagramclone.databinding.ActivityRegisterBinding
@@ -30,16 +34,15 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val currentUser = auth.currentUser
+        binding.edtEmail.addTextChangedListener(getTextWatcher(binding.edtEmail))
+        binding.edtPassword.addTextChangedListener(getTextWatcher(binding.edtPassword))
     }
 
     fun registerSave(view: View){
+
         val email = binding.edtEmail.text.toString()
         val password = binding.edtPassword.text.toString()
 
-        if (email.isEmpty() || password.isEmpty()){
-            binding.btRegisterSave.isEnabled = false
-        }
         try {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this@RegisterActivity) { task ->
@@ -66,6 +69,27 @@ class RegisterActivity : AppCompatActivity() {
     fun cancel(view: View){
         startActivity(intent)
         finish()
+    }
+
+    private fun buttonCheck(emailEDT : EditText, passEDT : EditText, button : Button) {
+
+        val email = emailEDT.text.toString().trim()
+        val password = passEDT.text.toString().trim()
+
+        button.isEnabled = email.isNotEmpty() && password.isNotEmpty()
+
+    }
+
+    private fun getTextWatcher(emailEdt: EditText) = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            buttonCheck(binding.edtEmail, binding.edtPassword ,binding.btRegisterSave)
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
+
     }
 
 }
