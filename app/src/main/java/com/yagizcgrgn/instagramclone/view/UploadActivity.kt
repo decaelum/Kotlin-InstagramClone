@@ -45,18 +45,18 @@ class UploadActivity : AppCompatActivity() {
         auth = Firebase.auth
         firestore = Firebase.firestore
 
-        registerLaıncher()
+        registerLauncher()
     }
 
     fun share(view: View) {
-        val storage = Firebase.storage
         //universal unique id
         val uuid = UUID.randomUUID()
         val imageName = "$uuid.jpeg"
 
+        val storage = Firebase.storage
         val reference = storage.reference
         val imageReference = reference.child("images").child(imageName)
-        selectedPicture?.let { reference.putFile(it)
+        selectedPicture?.let { imageReference.putFile(it)
             .addOnSuccessListener {
                 //download url -> firestore
                 val uploadPictureReferance = storage.reference.child("images").child(imageName)
@@ -134,7 +134,7 @@ class UploadActivity : AppCompatActivity() {
 
     }
 
-    private fun registerLaıncher(){
+    private fun registerLauncher(){
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
             if(result.resultCode == RESULT_OK){

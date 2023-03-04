@@ -5,12 +5,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.yagizcgrgn.instagramclone.R
+import com.yagizcgrgn.instagramclone.adapter.UploadRecyclerAdapter
 import com.yagizcgrgn.instagramclone.databinding.ActivityFeedBinding
 import com.yagizcgrgn.instagramclone.model.Post
 
@@ -19,8 +23,9 @@ class FeedActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFeedBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db : FirebaseFirestore
+    private lateinit var feedAdapter : UploadRecyclerAdapter
 
-    val postArrayList : ArrayList<Post>? = null
+    val postArrayList : ArrayList<Post>  = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedBinding.inflate(layoutInflater)
@@ -32,10 +37,14 @@ class FeedActivity : AppCompatActivity() {
 
         getData()
 
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        feedAdapter = UploadRecyclerAdapter(postArrayList!!)
+        binding.recyclerView.adapter = feedAdapter
+
     }
 
     private fun getData(){
-        db.collection("Posts").addSnapshotListener { value, error ->
+        db.collection("Posts").orderBy("date",Query.Direction.DESCENDING).addSnapshotListener { value, error ->
             if (error != null){
                 Toast.makeText(this,error.localizedMessage,Toast.LENGTH_LONG).show()
             }else{
@@ -43,6 +52,8 @@ class FeedActivity : AppCompatActivity() {
                     if(!value.isEmpty){
 
                        val documents = value.documents
+
+                        postArrayList.clear()
 
                         for (document in documents){
 
@@ -54,6 +65,8 @@ class FeedActivity : AppCompatActivity() {
                             postArrayList?.add(post)
 
                         }
+
+                        feedAdapter.notifyDataSetChanged()
 
                     }
                 }
